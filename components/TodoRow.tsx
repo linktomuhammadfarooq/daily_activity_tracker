@@ -2,6 +2,7 @@
 
 import { TodoStatus, TodoView } from "@/types/todo";
 import { Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type TodoRowProps = {
@@ -88,7 +89,7 @@ export default function TodoRow({
   }
 
   return (
-    <li className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[1fr_110px_130px_1.4fr_50px] md:items-center">
+    <li className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[1fr_110px_130px_1.4fr_120px] md:items-center">
       <div>
         <p
           className={
@@ -101,6 +102,7 @@ export default function TodoRow({
         </p>
 
         <p className="mt-1 text-xs text-slate-500">
+          Priority {todo.priority} |{" "}
           {todo.scheduleType === "daily"
             ? `Daily task | Started: ${todo.startDate}`
             : `One-time task | Date: ${todo.taskDate}`}
@@ -158,14 +160,23 @@ export default function TodoRow({
         />
       </div>
 
-      <button
-        type="button"
-        onClick={handleDelete}
-        className="rounded-xl bg-red-100 p-2 text-red-600 hover:bg-red-200"
-        aria-label="Delete task"
-      >
-        <Trash2 className="h-5 w-5" />
-      </button>
+      <div className="flex items-center gap-2">
+        <Link
+          href={`/tasks/${todo.taskId}/edit`}
+          className="rounded-xl bg-blue-100 px-2 py-2 text-sm font-semibold text-blue-700 hover:text-blue-200"
+        >
+          Edit
+        </Link>
+
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="rounded-xl bg-red-100 p-2 text-red-600 hover:bg-red-200"
+          aria-label="Delete task"
+        >
+          <Trash2 className="h-5 w-5" />
+        </button>
+      </div>
     </li>
   );
 }

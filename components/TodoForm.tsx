@@ -9,6 +9,7 @@ type TodoFormProps = {
     title: string;
     scheduleType: ScheduleType;
     taskDate: string;
+    priority: number;
   }) => Promise<void>;
 };
 
@@ -16,6 +17,7 @@ export default function TodoForm({ selectedDate, onAddTask }: TodoFormProps) {
   const [title, setTitle] = useState("");
   const [scheduleType, setScheduleType] = useState<ScheduleType>("one_time");
   const [taskDate, setTaskDate] = useState(selectedDate);
+  const [priority, setPriority] = useState(1);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -34,11 +36,13 @@ export default function TodoForm({ selectedDate, onAddTask }: TodoFormProps) {
         title,
         scheduleType,
         taskDate,
+        priority,
       });
 
       setTitle("");
       setScheduleType("one_time");
       setTaskDate(selectedDate);
+      setPriority(1);
     } catch (error) {
       console.error("Failed to add task:", error);
       alert("Task could not be added.");
@@ -56,7 +60,7 @@ export default function TodoForm({ selectedDate, onAddTask }: TodoFormProps) {
         className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
       />
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-[180px_180px_1fr]">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-[160px_160px_160px_1fr]">
         <select
           value={scheduleType}
           onChange={(e) => setScheduleType(e.target.value as ScheduleType)}
@@ -73,6 +77,18 @@ export default function TodoForm({ selectedDate, onAddTask }: TodoFormProps) {
           className="rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
         />
 
+        <select
+          value={priority}
+          onChange={(e) => setPriority(Number(e.target.value))}
+          className="rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+        >
+          <option value={1}>Priority 1 - Low</option>
+          <option value={2}>Priority 2</option>
+          <option value={3}>Priority 3 - Medium</option>
+          <option value={4}>Priority 4</option>
+          <option value={5}>Priority 5 - High</option>
+        </select>
+
         <button
           type="submit"
           disabled={saving}
@@ -83,8 +99,8 @@ export default function TodoForm({ selectedDate, onAddTask }: TodoFormProps) {
       </div>
 
       <p className="text-sm text-slate-500">
-        Daily task starts from selected date and appears every day after that.
-        One-time task appears only on its selected date.
+        Higher priority tasks show first. Daily tasks appear every day from
+        their start date. One-time tasks appear only on their selected date.
       </p>
     </form>
   );

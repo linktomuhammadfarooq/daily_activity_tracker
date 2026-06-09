@@ -8,6 +8,7 @@ export type Task = {
   id: string;
   title: string;
   scheduleType: ScheduleType;
+  priority: number;
   startDate: string;
   taskDate: string | null;
   isActive: boolean;
@@ -27,6 +28,7 @@ export type TodoView = {
   taskId: string;
   title: string;
   scheduleType: ScheduleType;
+  priority: number;
   startDate: string;
   taskDate: string | null;
   date: string;

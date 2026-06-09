@@ -42,6 +42,7 @@ export function useTodos(selectedDate: string) {
             id: docItem.id,
             title: data.title || "",
             scheduleType: data.scheduleType || "one_time",
+            priority: Number(data.priority) || 1,
             startDate: data.startDate || "",
             taskDate: data.taskDate || null,
             isActive: data.isActive ?? true,
@@ -117,6 +118,7 @@ export function useTodos(selectedDate: string) {
       return {
         taskId: task.id,
         title: task.title,
+        priority: Number(task.priority) || 1,
         scheduleType: task.scheduleType,
         startDate: task.startDate,
         taskDate: task.taskDate,
@@ -127,6 +129,10 @@ export function useTodos(selectedDate: string) {
     });
 
     mergedTodos.sort((a, b) => {
+      if (b.priority !== a.priority) {
+        return b.priority - a.priority;
+      }
+
       if (a.scheduleType === b.scheduleType) {
         return a.title.localeCompare(b.title);
       }
@@ -141,10 +147,12 @@ export function useTodos(selectedDate: string) {
     title,
     scheduleType,
     taskDate,
+    priority,
   }: {
     title: string;
     scheduleType: ScheduleType;
     taskDate: string;
+    priority: number;
   }) {
     const cleanTitle = title.trim();
 
@@ -153,6 +161,7 @@ export function useTodos(selectedDate: string) {
     await addDoc(collection(db, "tasks"), {
       title: cleanTitle,
       scheduleType,
+      priority,
       startDate: taskDate,
       taskDate: scheduleType === "one_time" ? taskDate : null,
       isActive: true,

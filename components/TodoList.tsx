@@ -42,12 +42,12 @@ export default function TodoList({
 
   return (
     <div>
-      <div className="mb-2 hidden grid-cols-[1fr_110px_130px_1.4fr_50px] px-4 text-xs font-bold uppercase text-slate-500 md:grid">
-        <p>Todo Name</p>
+      <div className="mb-2 hidden grid-cols-[1fr_110px_130px_1.4fr_120px] px-4 text-xs font-bold uppercase text-slate-500 md:grid">
+        <p>Todo Name / Priority</p>
         <p>Done</p>
         <p>Not Done</p>
         <p>Partial Done</p>
-        <p></p>
+        <p>Actions</p>
       </div>
 
       <ul className="space-y-3">
