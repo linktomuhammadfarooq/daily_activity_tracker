@@ -1,6 +1,5 @@
 "use client";
 
-import { isSameOrAfter } from "@/lib/date";
 import { db } from "@/lib/firebase";
 import {
   ScheduleType,
@@ -105,10 +104,18 @@ export function useTodos(selectedDate: string) {
     const visibleTasks = tasks.filter((task) => {
       if (!task.isActive) return false;
 
-      if (task.scheduleType === "daily") {
-        return isSameOrAfter(selectedDate, task.startDate);
+      // Do not show any task before its start date
+      if (!task.startDate || selectedDate < task.startDate) {
+        return false;
       }
 
+      // Daily tasks show from startDate onward
+      if (task.scheduleType === "daily") {
+        return selectedDate >= task.startDate;
+      }
+
+      // One-time tasks show only on taskDate,
+      // but also only if startDate has been reached
       return task.taskDate === selectedDate;
     });
 
@@ -118,8 +125,8 @@ export function useTodos(selectedDate: string) {
       return {
         taskId: task.id,
         title: task.title,
-        priority: Number(task.priority) || 1,
         scheduleType: task.scheduleType,
+        priority: Number(task.priority) || 1,
         startDate: task.startDate,
         taskDate: task.taskDate,
         date: selectedDate,
@@ -128,16 +135,32 @@ export function useTodos(selectedDate: string) {
       };
     });
 
+    const statusRank = {
+      not_done: 1,
+      partial_done: 2,
+      done: 3,
+    };
+
     mergedTodos.sort((a, b) => {
+      // 1. Not done first, partial second, done last
+      const statusDifference = statusRank[a.status] - statusRank[b.status];
+
+      if (statusDifference !== 0) {
+        return statusDifference;
+      }
+
+      // 2. Highest priority first inside each status group
       if (b.priority !== a.priority) {
         return b.priority - a.priority;
       }
 
-      if (a.scheduleType === b.scheduleType) {
-        return a.title.localeCompare(b.title);
+      // 3. Daily tasks before one-time if status and priority are same
+      if (a.scheduleType !== b.scheduleType) {
+        return a.scheduleType === "daily" ? -1 : 1;
       }
 
-      return a.scheduleType === "daily" ? -1 : 1;
+      // 4. Alphabetical fallback
+      return a.title.localeCompare(b.title);
     });
 
     return mergedTodos;
