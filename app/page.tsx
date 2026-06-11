@@ -61,7 +61,6 @@ export default function Home() {
               <span className="font-semibold text-slate-700">{user.email}</span>
             </p>
           </div>
-
           <div className="flex flex-col gap-3 md:items-end">
             <div>
               <label className="mb-1 block text-sm font-semibold text-slate-600">

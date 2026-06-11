@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 
 export default function AuthForm() {
-  const { login, register } = useAuth();
+  const { login, register, resetPassword } = useAuth();
 
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -38,6 +38,44 @@ export default function AuthForm() {
       alert(
         "Authentication failed. Check email/password or Firebase settings."
       );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleResetPassword() {
+    const cleanEmail = email.trim();
+
+    if (!cleanEmail) {
+      alert("Enter your email first, then click reset password.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      await resetPassword(cleanEmail);
+
+      alert(`Password reset email sent. Check your inbox.${cleanEmail}`);
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+
+      if (error.code === "auth/user-not-found") {
+        alert("No account exists with this email.");
+        return;
+      }
+
+      if (error.code === "auth/invalid-email") {
+        alert("Invalid email address.");
+        return;
+      }
+
+      if (error.code === "auth/too-many-requests") {
+        alert("Too many reset attempts. Wait a few minutes and try again.");
+        return;
+      }
+
+      alert(`Password reset failed: ${error.code || "unknown error"}`);
     } finally {
       setSaving(false);
     }
@@ -95,6 +133,17 @@ export default function AuthForm() {
                 : "Create Account"}
           </button>
         </form>
+
+        {mode === "login" ? (
+          <button
+            type="button"
+            onClick={handleResetPassword}
+            disabled={saving}
+            className="mt-4 w-full text-sm font-semibold text-orange-600 hover:text-orange-700 disabled:text-orange-300"
+          >
+            Forgot password? Reset it
+          </button>
+        ) : null}
 
         <button
           type="button"

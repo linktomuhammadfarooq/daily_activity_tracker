@@ -4,6 +4,7 @@ import { auth } from "@/lib/firebase";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   User,
@@ -31,6 +32,10 @@ export function useAuth() {
     return signInWithEmailAndPassword(auth, email, password);
   }
 
+  async function resetPassword(email: string) {
+    return sendPasswordResetEmail(auth, email);
+  }
+
   async function logout() {
     return signOut(auth);
   }
@@ -40,6 +45,7 @@ export function useAuth() {
     authLoading,
     register,
     login,
+    resetPassword,
     logout,
   };
 }
