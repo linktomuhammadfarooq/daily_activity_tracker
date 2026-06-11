@@ -22,23 +22,33 @@ import {
 } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 
-export function useTodos(selectedDate: string) {
+export function useTodos(selectedDate: string, userId?: string) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [history, setHistory] = useState<TaskHistory[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [loadingHistory, setLoadingHistory] = useState(true);
 
   useEffect(() => {
+    if (!userId) {
+      setTasks([]);
+      setLoadingTasks(false);
+      return;
+    }
+
+    setLoadingTasks(true);
+
     const tasksRef = collection(db, "tasks");
+    const q = query(tasksRef, where("userId", "==", userId));
 
     const unsubscribe = onSnapshot(
-      tasksRef,
+      q,
       (snapshot) => {
         const items: Task[] = snapshot.docs.map((docItem) => {
           const data = docItem.data();
 
           return {
             id: docItem.id,
+            userId: data.userId || "",
             title: data.title || "",
             scheduleType: data.scheduleType || "one_time",
             priority: Number(data.priority) || 1,
@@ -59,12 +69,24 @@ export function useTodos(selectedDate: string) {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
+    if (!userId) {
+      setHistory([]);
+      setLoadingHistory(false);
+      return;
+    }
+
+    setLoadingHistory(true);
+
     const historyRef = collection(db, "taskHistory");
 
-    const q = query(historyRef, where("date", "==", selectedDate));
+    const q = query(
+      historyRef,
+      where("userId", "==", userId),
+      where("date", "==", selectedDate)
+    );
 
     const unsubscribe = onSnapshot(
       q,
@@ -74,6 +96,7 @@ export function useTodos(selectedDate: string) {
 
           return {
             id: docItem.id,
+            userId: data.userId || "",
             taskId: data.taskId || "",
             date: data.date || "",
             status: data.status || "not_done",
@@ -92,7 +115,7 @@ export function useTodos(selectedDate: string) {
     );
 
     return () => unsubscribe();
-  }, [selectedDate]);
+  }, [selectedDate, userId]);
 
   const todos = useMemo<TodoView[]>(() => {
     const historyByTaskId = new Map<string, TaskHistory>();
@@ -104,18 +127,17 @@ export function useTodos(selectedDate: string) {
     const visibleTasks = tasks.filter((task) => {
       if (!task.isActive) return false;
 
-      // Do not show any task before its start date
+      // Do not show any task before startDate
       if (!task.startDate || selectedDate < task.startDate) {
         return false;
       }
 
-      // Daily tasks show from startDate onward
+      // Daily task shows from startDate onward
       if (task.scheduleType === "daily") {
         return selectedDate >= task.startDate;
       }
 
-      // One-time tasks show only on taskDate,
-      // but also only if startDate has been reached
+      // One-time task shows only on taskDate
       return task.taskDate === selectedDate;
     });
 
@@ -124,6 +146,7 @@ export function useTodos(selectedDate: string) {
 
       return {
         taskId: task.id,
+        userId: task.userId,
         title: task.title,
         scheduleType: task.scheduleType,
         priority: Number(task.priority) || 1,
@@ -142,24 +165,20 @@ export function useTodos(selectedDate: string) {
     };
 
     mergedTodos.sort((a, b) => {
-      // 1. Not done first, partial second, done last
       const statusDifference = statusRank[a.status] - statusRank[b.status];
 
       if (statusDifference !== 0) {
         return statusDifference;
       }
 
-      // 2. Highest priority first inside each status group
       if (b.priority !== a.priority) {
         return b.priority - a.priority;
       }
 
-      // 3. Daily tasks before one-time if status and priority are same
       if (a.scheduleType !== b.scheduleType) {
         return a.scheduleType === "daily" ? -1 : 1;
       }
 
-      // 4. Alphabetical fallback
       return a.title.localeCompare(b.title);
     });
 
@@ -177,11 +196,17 @@ export function useTodos(selectedDate: string) {
     taskDate: string;
     priority: number;
   }) {
+    if (!userId) {
+      alert("You must be logged in to add tasks.");
+      return;
+    }
+
     const cleanTitle = title.trim();
 
     if (!cleanTitle) return;
 
     await addDoc(collection(db, "tasks"), {
+      userId,
       title: cleanTitle,
       scheduleType,
       priority,
@@ -204,11 +229,17 @@ export function useTodos(selectedDate: string) {
     status: TodoStatus;
     partialText?: string;
   }) {
-    const historyId = `${taskId}_${date}`;
+    if (!userId) {
+      alert("You must be logged in to update tasks.");
+      return;
+    }
+
+    const historyId = `${userId}_${taskId}_${date}`;
 
     await setDoc(
       doc(db, "taskHistory", historyId),
       {
+        userId,
         taskId,
         date,
         status,
@@ -228,15 +259,21 @@ export function useTodos(selectedDate: string) {
     date: string;
     partialText: string;
   }) {
+    if (!userId) {
+      alert("You must be logged in to update tasks.");
+      return;
+    }
+
     const cleanPartialText = partialText.trim();
 
     if (!cleanPartialText) return;
 
-    const historyId = `${taskId}_${date}`;
+    const historyId = `${userId}_${taskId}_${date}`;
 
     await setDoc(
       doc(db, "taskHistory", historyId),
       {
+        userId,
         taskId,
         date,
         status: "partial_done",
@@ -248,10 +285,20 @@ export function useTodos(selectedDate: string) {
   }
 
   async function deleteTask(taskId: string) {
+    if (!userId) {
+      alert("You must be logged in to delete tasks.");
+      return;
+    }
+
     await deleteDoc(doc(db, "tasks", taskId));
   }
 
   async function archiveTask(taskId: string) {
+    if (!userId) {
+      alert("You must be logged in to archive tasks.");
+      return;
+    }
+
     await updateDoc(doc(db, "tasks", taskId), {
       isActive: false,
       updatedAt: serverTimestamp(),

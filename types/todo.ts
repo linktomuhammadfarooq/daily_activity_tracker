@@ -6,6 +6,7 @@ export type FilterType = "all" | "done" | "not_done" | "partial_done";
 
 export type Task = {
   id: string;
+  userId: string;
   title: string;
   scheduleType: ScheduleType;
   priority: number;
@@ -17,6 +18,7 @@ export type Task = {
 
 export type TaskHistory = {
   id: string;
+  userId: string;
   taskId: string;
   date: string;
   status: TodoStatus;
@@ -26,6 +28,7 @@ export type TaskHistory = {
 
 export type TodoView = {
   taskId: string;
+  userId: string;
   title: string;
   scheduleType: ScheduleType;
   priority: number;

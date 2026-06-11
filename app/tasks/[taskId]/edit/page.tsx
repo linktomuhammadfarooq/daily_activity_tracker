@@ -1,5 +1,7 @@
 "use client";
 
+import AuthForm from "@/components/AuthForm";
+import { useAuth } from "@/hooks/useAuth";
 import { db } from "@/lib/firebase";
 import { ScheduleType } from "@/types/todo";
 import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
@@ -10,6 +12,8 @@ import { useEffect, useState } from "react";
 export default function EditTaskPage() {
   const params = useParams();
   const router = useRouter();
+
+  const { user, authLoading } = useAuth();
 
   const taskId = params.taskId as string;
 
@@ -25,7 +29,7 @@ export default function EditTaskPage() {
 
   useEffect(() => {
     async function loadTask() {
-      if (!taskId) return;
+      if (!taskId || !user) return;
 
       try {
         const taskRef = doc(db, "tasks", taskId);
@@ -38,6 +42,12 @@ export default function EditTaskPage() {
         }
 
         const data = taskSnap.data();
+
+        if (data.userId !== user.uid) {
+          alert("You do not have permission to edit this task.");
+          router.push("/");
+          return;
+        }
 
         setTitle(data.title || "");
         setScheduleType(data.scheduleType || "one_time");
@@ -53,11 +63,18 @@ export default function EditTaskPage() {
       }
     }
 
-    loadTask();
-  }, [taskId, router]);
+    if (!authLoading) {
+      loadTask();
+    }
+  }, [taskId, user, authLoading, router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (!user) {
+      alert("You must be logged in.");
+      return;
+    }
 
     const cleanTitle = title.trim();
 
@@ -98,6 +115,20 @@ export default function EditTaskPage() {
     }
   }
 
+  if (authLoading) {
+    return (
+      <main className="min-h-screen bg-slate-100 px-4 py-8">
+        <section className="mx-auto max-w-2xl rounded-3xl bg-white p-6 shadow-xl">
+          <p className="text-center text-slate-500">Checking login...</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return <AuthForm />;
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen bg-slate-100 px-4 py-8">
@@ -122,8 +153,7 @@ export default function EditTaskPage() {
           <h1 className="mt-4 text-3xl font-bold text-slate-900">Edit Task</h1>
 
           <p className="mt-2 text-sm text-slate-500">
-            Edit the master task. Daily done/not-done/partial history will not
-            be deleted.
+            Editing task for {user.email}
           </p>
         </div>
 
@@ -191,10 +221,6 @@ export default function EditTaskPage() {
               }}
               className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
             />
-
-            <p className="mt-1 text-xs text-slate-500">
-              For daily tasks, this is the first day the task will appear.
-            </p>
           </div>
 
           {scheduleType === "one_time" ? (
@@ -209,10 +235,6 @@ export default function EditTaskPage() {
                 onChange={(e) => setTaskDate(e.target.value)}
                 className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
               />
-
-              <p className="mt-1 text-xs text-slate-500">
-                One-time task appears only on this date.
-              </p>
             </div>
           ) : null}
 
