@@ -74,6 +74,18 @@ export default function MeterUsageTable({
     );
   }
 
+  function getUnitColorClass(unit: number) {
+    if (unit < 150) {
+      return "bg-green-100 text-green-800";
+    }
+
+    if (unit <= 185) {
+      return "bg-yellow-100 text-yellow-800";
+    }
+
+    return "bg-red-100 text-red-800";
+  }
+
   return (
     <div className="overflow-hidden rounded-3xl border border-purple-100 bg-white shadow-xl shadow-purple-100">
       <div className="overflow-x-auto">
@@ -124,7 +136,9 @@ export default function MeterUsageTable({
                 </td>
 
                 <td className="px-4 py-4">
-                  <span className="rounded-2xl bg-purple-100 px-3 py-1 text-sm font-bold text-purple-800">
+                  <span
+                    className={`rounded-2xl px-3 py-1 text-sm font-bold ${getUnitColorClass(row.currentMonthUsage)}`}
+                  >
                     {row.currentMonthUsage}
                   </span>
                 </td>
