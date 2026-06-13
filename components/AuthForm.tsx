@@ -1,12 +1,13 @@
 "use client";
-
+import { useAuthMode } from "@/components/AppShell";
 import { useAuth } from "@/hooks/useAuth";
+import { CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 
 export default function AuthForm() {
   const { login, register, resetPassword } = useAuth();
 
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const { authMode: mode, setAuthMode: setMode } = useAuthMode();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -56,7 +57,7 @@ export default function AuthForm() {
 
       await resetPassword(cleanEmail);
 
-      alert(`Password reset email sent. Check your inbox.${cleanEmail}`);
+      alert("Password reset email sent. Check inbox and spam folder.");
     } catch (error: any) {
       console.error("Reset password error:", error);
 
@@ -82,17 +83,43 @@ export default function AuthForm() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-8">
-      <section className="mx-auto max-w-md rounded-3xl bg-white p-6 shadow-xl">
-        <h1 className="text-3xl font-bold text-slate-900">
-          {mode === "login" ? "Login" : "Create Account"}
-        </h1>
-
-        <p className="mt-2 text-sm text-slate-500">
-          Sign in to manage your private daily tasks.
+    <section className="mx-auto grid min-h-[calc(100vh-80px)] max-w-6xl items-center gap-10 px-4 py-8 md:grid-cols-[1.1fr_0.9fr] md:py-14">
+      <div className="hidden md:block">
+        <p className="mb-4 inline-flex rounded-full bg-purple-100 px-4 py-2 text-sm font-semibold text-purple-700">
+          Private daily productivity system
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <h2 className="max-w-2xl text-5xl font-bold tracking-tight text-slate-950">
+          Stay focused on what matters today.
+        </h2>
+
+        <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
+          Track daily tasks, one-time tasks, priority, partial progress, and
+          completion history from one clean dashboard.
+        </p>
+
+        <div className="mt-8 space-y-4">
+          <Feature text="Daily tasks repeat automatically from their start date" />
+          <Feature text="One-time tasks appear only on the selected day" />
+          <Feature text="Done tasks move to the end so unfinished work stays visible" />
+          <Feature text="Partial progress lets you record real effort, not fake completion" />
+        </div>
+      </div>
+
+      <section className="w-full rounded-3xl border border-purple-100 bg-white p-6 shadow-xl shadow-purple-100 md:p-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-slate-900">
+            {mode === "login" ? "Welcome Back" : "Create Account"}
+          </h1>
+
+          <p className="mt-2 text-sm text-slate-500">
+            {mode === "login"
+              ? "Login to continue managing your private tasks."
+              : "Create an account to start tracking your daily progress."}
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
               Email
@@ -102,7 +129,7 @@ export default function AuthForm() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+              className="w-full rounded-2xl border border-purple-200 bg-purple-50/40 px-4 py-3 outline-none focus:border-purple-500 focus:bg-white"
               placeholder="you@example.com"
             />
           </div>
@@ -116,7 +143,7 @@ export default function AuthForm() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+              className="w-full rounded-2xl border border-purple-200 bg-purple-50/40 px-4 py-3 outline-none focus:border-purple-500 focus:bg-white"
               placeholder="Minimum 6 characters"
             />
           </div>
@@ -124,7 +151,7 @@ export default function AuthForm() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+            className="w-full rounded-2xl bg-purple-600 px-5 py-3 font-semibold text-white shadow-md shadow-purple-200 hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
           >
             {saving
               ? "Please wait..."
@@ -148,13 +175,25 @@ export default function AuthForm() {
         <button
           type="button"
           onClick={() => setMode(mode === "login" ? "register" : "login")}
-          className="mt-4 w-full text-sm font-semibold text-blue-600 hover:text-blue-700"
+          className="mt-4 w-full text-sm font-semibold text-purple-600 hover:text-purple-700"
         >
           {mode === "login"
             ? "Need an account? Create one"
             : "Already have an account? Login"}
         </button>
       </section>
-    </main>
+    </section>
+  );
+}
+
+function Feature({ text }: { text: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100 text-purple-700">
+        <CheckCircle2 className="h-4 w-4" />
+      </div>
+
+      <p className="text-sm font-medium text-slate-700">{text}</p>
+    </div>
   );
 }

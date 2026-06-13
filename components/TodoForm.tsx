@@ -57,14 +57,14 @@ export default function TodoForm({ selectedDate, onAddTask }: TodoFormProps) {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Add task e.g. Walk 10000 steps"
-        className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+        className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-purple-500"
       />
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-[160px_160px_160px_1fr]">
         <select
           value={scheduleType}
           onChange={(e) => setScheduleType(e.target.value as ScheduleType)}
-          className="rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+          className="rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-purple-500"
         >
           <option value="one_time">One Time</option>
           <option value="daily">Daily</option>
@@ -74,13 +74,13 @@ export default function TodoForm({ selectedDate, onAddTask }: TodoFormProps) {
           type="date"
           value={taskDate}
           onChange={(e) => setTaskDate(e.target.value)}
-          className="rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+          className="rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-purple-500"
         />
 
         <select
           value={priority}
           onChange={(e) => setPriority(Number(e.target.value))}
-          className="rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+          className="rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-purple-500"
         >
           <option value={1}>Priority 1 - Low</option>
           <option value={2}>Priority 2</option>
@@ -92,7 +92,7 @@ export default function TodoForm({ selectedDate, onAddTask }: TodoFormProps) {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+          className="rounded-2xl bg-purple-600 px-5 py-3 font-semibold text-white shadow-md shadow-purple-200 hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
         >
           {saving ? "Adding..." : "Add Task"}
         </button>

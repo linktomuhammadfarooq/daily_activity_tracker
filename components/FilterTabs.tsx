@@ -50,8 +50,8 @@ function FilterButton({
       onClick={onClick}
       className={
         active
-          ? "rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
-          : "rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200"
+          ? "rounded-2xl bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-purple-100"
+          : "rounded-2xl bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700 hover:bg-purple-100"
       }
     >
       {label}
