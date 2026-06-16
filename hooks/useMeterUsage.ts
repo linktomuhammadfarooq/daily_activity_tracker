@@ -2,6 +2,7 @@
 
 import { getMonthKey, isDateInMonth } from "@/lib/date";
 import { db } from "@/lib/firebase";
+import { safeRound } from "@/lib/helper";
 import { Meter, MeterReading, MeterUsageView } from "@/types/meter";
 import { UserRole } from "@/types/user";
 import {
@@ -210,8 +211,8 @@ export function useMeterUsage(
         openingReading: meter.openingReading,
         todayReading,
         previousReading,
-        dailyUsage,
-        currentMonthUsage,
+        dailyUsage: safeRound(dailyUsage),
+        currentMonthUsage: safeRound(currentMonthUsage),
       };
     });
   }, [meters, readings, selectedDate, selectedMonth]);
