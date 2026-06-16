@@ -13,7 +13,7 @@ export default function UsagePage() {
 
   const [selectedDate, setSelectedDate] = useState(today);
 
-  const { user, authLoading } = useAuth();
+  const { user, appUser, authLoading } = useAuth();
 
   const {
     usageRows,
@@ -22,7 +22,10 @@ export default function UsagePage() {
     loading,
     addMeter,
     saveReading,
-  } = useMeterUsage(selectedDate, user?.uid);
+    shareMeterWithEmail,
+    deleteMeter,
+    isSuperAdmin,
+  } = useMeterUsage(selectedDate, user?.uid, appUser?.role || "user");
 
   if (authLoading) {
     return (
@@ -48,9 +51,15 @@ export default function UsagePage() {
             </h2>
 
             <p className="mt-2 text-sm text-slate-500">
-              Add one or more meters, enter daily readings, and calculate daily
-              plus current-month unit consumption automatically.
+              Add meters, share them with other users, and track daily plus
+              current-month unit usage.
             </p>
+
+            {isSuperAdmin ? (
+              <p className="mt-2 inline-flex rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700">
+                Super Admin
+              </p>
+            ) : null}
           </div>
 
           <div className="w-full md:w-auto">
@@ -76,6 +85,10 @@ export default function UsagePage() {
           totalCurrentMonthUsage={totalCurrentMonthUsage}
           loading={loading}
           onSaveReading={saveReading}
+          onShareMeter={shareMeterWithEmail}
+          onDeleteMeter={deleteMeter}
+          isSuperAdmin={isSuperAdmin}
+          currentUserId={user.uid}
         />
       </div>
     </section>

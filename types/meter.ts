@@ -1,6 +1,7 @@
 export type Meter = {
   id: string;
-  userId: string;
+  ownerId: string;
+  sharedWithUserIds: string[];
   name: string;
   openingReading: number;
   openingMonth: string;
@@ -9,7 +10,7 @@ export type Meter = {
 
 export type MeterReading = {
   id: string;
-  userId: string;
+  ownerId: string;
   meterId: string;
   date: string;
   readingValue: number;
@@ -19,6 +20,8 @@ export type MeterReading = {
 
 export type MeterUsageView = {
   meterId: string;
+  ownerId: string;
+  sharedWithUserIds: string[];
   meterName: string;
   openingReading: number;
   todayReading: number | null;
