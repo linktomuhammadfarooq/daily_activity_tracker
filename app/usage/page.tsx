@@ -1,8 +1,8 @@
 "use client";
 
 import AuthForm from "@/components/AuthForm";
-import MeterForm from "@/components/MeterForm";
-import MeterUsageTable from "@/components/MeterUsageTable";
+import MeterForm from "@/components/Meter/MeterForm";
+import MeterUsageTable from "@/components/Meter/MeterUsageTable";
 import { useAuth } from "@/hooks/useAuth";
 import { useMeterUsage } from "@/hooks/useMeterUsage";
 import { getTodayDate } from "@/lib/date";
